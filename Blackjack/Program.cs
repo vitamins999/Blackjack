@@ -19,13 +19,7 @@ namespace Blackjack
                     break;
                 }
 
-                Random rand = new Random();
-
-                int playerCard = rand.Next(2, 11);
-                Console.WriteLine($"\nYou draw {playerCard}");
-
-                playerHand += playerCard;
-                Console.WriteLine($"Player's hand: {playerHand}");
+                playerHand = addCardToHand("Player", playerHand);
 
                 if (playerHand == 21)
                 {
@@ -37,11 +31,7 @@ namespace Blackjack
                     break;
                 }
 
-                int dealerCard = rand.Next(2, 11);
-                Console.WriteLine($"\nDealer draws {dealerCard}");
-
-                dealerHand += dealerCard;
-                Console.WriteLine($"Dealer's hand: {dealerHand}.\n");
+                dealerHand = addCardToHand("Dealer", dealerHand);
 
                 if (dealerHand == 21)
                 {
@@ -55,6 +45,23 @@ namespace Blackjack
             }
 
             Console.WriteLine("\nGame over.  And yes, I know that's not how blackjack works. This is just to have a basic gameplay loop that will be made better.");
+        }
+
+        static int dealNewCard()
+        {
+            Random rand = new Random();
+            int card = rand.Next(1, 11);
+            return card;
+        }
+
+        static int addCardToHand(string handOwner, int handValue)
+        {
+            int card = dealNewCard();
+            Console.WriteLine($"\n{handOwner} draws {card}");
+            handValue += card;
+            Console.WriteLine($"{handOwner}'s hand: {handValue}");
+
+            return handValue;
         }
     }
 }
