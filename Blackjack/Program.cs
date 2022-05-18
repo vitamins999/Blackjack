@@ -11,6 +11,8 @@ namespace Blackjack
 
             while (true)
             {
+                DrawPile drawPile = new DrawPile(1);
+
                 Console.WriteLine("Deal a new card? (y/n)\n");
                 string dealNewCard = Console.ReadLine();
 
@@ -19,7 +21,7 @@ namespace Blackjack
                     break;
                 }
 
-                playerHand = addCardToHand("Player", playerHand);
+                playerHand = AddCardToHand("Player", playerHand, drawPile);
 
                 if (playerHand == 21)
                 {
@@ -31,7 +33,7 @@ namespace Blackjack
                     break;
                 }
 
-                dealerHand = addCardToHand("Dealer", dealerHand);
+                dealerHand = AddCardToHand("Dealer", dealerHand, drawPile);
 
                 if (dealerHand == 21)
                 {
@@ -47,18 +49,11 @@ namespace Blackjack
             Console.WriteLine("\nGame over.  And yes, I know that's not how blackjack works. This is just to have a basic gameplay loop that will be made better.");
         }
 
-        static int dealNewCard()
+        static int AddCardToHand(string handOwner, int handValue, DrawPile drawPile)
         {
-            Random rand = new Random();
-            int card = rand.Next(1, 11);
-            return card;
-        }
-
-        static int addCardToHand(string handOwner, int handValue)
-        {
-            int card = dealNewCard();
-            Console.WriteLine($"\n{handOwner} draws {card}");
-            handValue += card;
+            Card card = drawPile.DrawCard();
+            Console.WriteLine($"\n{handOwner} draws {card.GetName()}");
+            handValue += card.GetValue();
             Console.WriteLine($"{handOwner}'s hand: {handValue}");
 
             return handValue;
