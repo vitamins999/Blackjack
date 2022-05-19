@@ -16,6 +16,9 @@ namespace Blackjack
             int amountOfDecks = GetAmountOfDecks(player);
             PlayGame(player, dealer, amountOfDecks);
             ShowFinalScores(player, dealer);
+
+            Console.WriteLine("\n\nPress any key to close...");
+            Console.ReadKey();
         }
 
         static string GetPlayerName()
