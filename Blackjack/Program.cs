@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Blackjack
 {
@@ -50,14 +49,15 @@ namespace Blackjack
             int dealerHand = 0;
 
             bool playerStand = false;
+            bool quitGame = false;
             string winner = "Draw";
 
-            while (playerStand == false && dealerHand < 17)
+            while (!quitGame)
             {
 
                 if (playerStand == false)
                 {
-                    Console.WriteLine("Deal a new card? (y/n)\n");
+                    Console.WriteLine("Deal you a new card? (y/n)\n");
                     string dealNewCard = Console.ReadLine().Trim();
 
                     if (dealNewCard.Equals("y", StringComparison.OrdinalIgnoreCase))
@@ -99,9 +99,11 @@ namespace Blackjack
                         winner = "Player";
                         break;
                     }
-                } else
+                }
+
+                if (playerStand && dealerHand >= 17)
                 {
-                    continue;
+                    quitGame = true;
                 }
             }
 
@@ -130,6 +132,8 @@ namespace Blackjack
             {
                 Console.WriteLine("\nWell how about that? It's a draw!");
             }
+
+            Console.WriteLine("");
 
             return drawPile;
         }
