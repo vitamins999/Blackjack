@@ -6,18 +6,29 @@ namespace Blackjack
     {
         static void Main(string[] args)
         {
-            int amountOfDecksNumber = 0;
-
-            bool isNumber = false;
-            bool keepPlaying = true;
-
             Console.WriteLine("Welcome to BLACKJACK!\n\n");
 
-            Console.WriteLine("Please enter your name:");
-            string playerName = Console.ReadLine();
+            string playerName = GetPlayerName();
 
             Player player = new Player(playerName);
             Player dealer = new Player("Dealer");
+
+            int amountOfDecks = GetAmountOfDecks(player);
+            PlayGame(player, dealer, amountOfDecks);
+            ShowFinalScores(player, dealer);
+        }
+
+        static string GetPlayerName()
+        {
+            Console.WriteLine("Please enter your name:");
+            string playerName = Console.ReadLine();
+
+            return playerName;
+        }
+        static int GetAmountOfDecks(Player player)
+        {
+            int amountOfDecksNumber = 0;
+            bool isNumber = false;
 
             while (!isNumber || amountOfDecksNumber <= 0)
             {
@@ -31,8 +42,15 @@ namespace Blackjack
                     Console.WriteLine($"{amountOfDecksString} is not a valid number! Please type in a whole number and try again.\n");
                 }
             }
-            
-            DrawPile drawPile = new DrawPile(amountOfDecksNumber);
+
+            return amountOfDecksNumber;
+        }
+
+        static void PlayGame(Player player, Player dealer, int amountOfDecks)
+        {
+            bool keepPlaying = true;
+
+            DrawPile drawPile = new DrawPile(amountOfDecks);
             Console.WriteLine("");
 
             while (keepPlaying)
@@ -45,12 +63,6 @@ namespace Blackjack
                 keepPlaying = keepPlayingString.Equals("y", StringComparison.OrdinalIgnoreCase);
                 Console.WriteLine("");
             }
-
-            Console.WriteLine("***FINAL SCORES***");
-            Console.WriteLine($"\n{player.GetName()}: {player.GetScore()} win" + (player.GetScore() != 1 ? "s" : "") + ".");
-            Console.WriteLine($"{dealer.GetName()}: {dealer.GetScore()} win" + (dealer.GetScore() != 1 ? "s" : "") + ".");
-
-            Console.WriteLine($"\nThanks for playing, {player.GetName()}!");
         }
 
         static void PlayRound(DrawPile drawPile, Player player, Player dealer)
@@ -75,16 +87,10 @@ namespace Blackjack
                     {
                         AddCardToHand(player, drawPile);
 
-                        if (player.GetTotalHandValue() == 21)
+                        winner = CheckIfBlackjackOrBust(player, dealer);
+
+                        if (!winner.Equals("Draw"))
                         {
-                            Console.WriteLine("Blackjack!");
-                            winner = player.GetName();
-                            break;
-                        }
-                        else if (player.GetTotalHandValue() > 21)
-                        {
-                            Console.WriteLine("Bust!");
-                            winner = dealer.GetName();
                             break;
                         }
                     }
@@ -98,16 +104,10 @@ namespace Blackjack
                 {
                     AddCardToHand(dealer, drawPile);
 
-                    if (dealer.GetTotalHandValue() == 21)
+                    winner = CheckIfBlackjackOrBust(dealer, player);
+
+                    if (!winner.Equals("Draw"))
                     {
-                        Console.WriteLine("Blackjack!");
-                        winner = dealer.GetName();
-                        break;
-                    }
-                    else if (dealer.GetTotalHandValue() > 21)
-                    {
-                        Console.WriteLine($"{dealer.GetName()} bust!");
-                        winner = player.GetName();
                         break;
                     }
                 }
@@ -118,6 +118,28 @@ namespace Blackjack
                 }
             }
 
+            ShowFinalHands(player, dealer, winner);
+        }
+
+        static string CheckIfBlackjackOrBust(Player playerToCheck, Player opponent)
+        {
+            if (playerToCheck.GetTotalHandValue() == 21)
+            {
+                Console.WriteLine("Blackjack!");
+                return playerToCheck.GetName();
+            }
+            else if (playerToCheck.GetTotalHandValue() > 21)
+            {
+                Console.WriteLine("Bust!");
+                return opponent.GetName();
+            } else
+            {
+                return "Draw";
+            }
+        }
+
+        static void ShowFinalHands(Player player, Player dealer, string winner)
+        {
             Console.WriteLine("\n***FINAL HANDS***");
             Console.WriteLine($"\n{player.GetName()}: {player.GetTotalHandValue()}");
             Console.WriteLine($"{dealer.GetName()}: {dealer.GetTotalHandValue()}\n");
@@ -147,6 +169,13 @@ namespace Blackjack
             }
 
             Console.WriteLine("");
+        }
+
+        static void ShowFinalScores(Player player, Player dealer)
+        {
+            Console.WriteLine("***FINAL SCORES***");
+            Console.WriteLine($"\n{player.GetName()}: {player.GetScore()} win" + (player.GetScore() != 1 ? "s" : "") + ".");
+            Console.WriteLine($"{dealer.GetName()}: {dealer.GetScore()} win" + (dealer.GetScore() != 1 ? "s" : "") + ".");
         }
 
         static void AddCardToHand(Player player, DrawPile drawPile)
