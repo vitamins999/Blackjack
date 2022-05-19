@@ -21,7 +21,7 @@ namespace Blackjack
         static string GetPlayerName()
         {
             Console.WriteLine("Please enter your name:");
-            string playerName = Console.ReadLine();
+            string playerName = Console.ReadLine().Trim();
 
             return playerName;
         }
@@ -58,9 +58,8 @@ namespace Blackjack
                 PlayRound(drawPile, player, dealer);
 
                 Console.WriteLine("\nKeep playing? (y/n)\n");
-                string keepPlayingString = Console.ReadLine().Trim();
+                keepPlaying = GetYesOrNoInput();
 
-                keepPlaying = keepPlayingString.Equals("y", StringComparison.OrdinalIgnoreCase);
                 Console.WriteLine("");
             }
         }
@@ -80,10 +79,10 @@ namespace Blackjack
                 if (playerStand == false)
                 {
                     Console.WriteLine($"Deal you a new card, {player.GetName()}? (y/n)\n");
-                    string dealNewCard = Console.ReadLine().Trim();
+                    bool dealNewCard = GetYesOrNoInput();
                     Console.WriteLine("");
 
-                    if (dealNewCard.Equals("y", StringComparison.OrdinalIgnoreCase))
+                    if (dealNewCard)
                     {
                         AddCardToHand(player, drawPile);
 
@@ -119,6 +118,26 @@ namespace Blackjack
             }
 
             ShowFinalHands(player, dealer, winner);
+        }
+
+        static bool GetYesOrNoInput()
+        {
+            while (true)
+            {
+                string input = Console.ReadLine().Trim();
+
+                if (input.Equals("y", StringComparison.OrdinalIgnoreCase) || input.Equals("yes", StringComparison.OrdinalIgnoreCase)) {
+                    return true;
+                }
+                else if (input.Equals("n", StringComparison.OrdinalIgnoreCase) || input.Equals("no", StringComparison.OrdinalIgnoreCase)) {
+                    return false;
+                }
+                else
+                {
+                    Console.WriteLine("\nPlease only answer 'yes', 'y', 'no', or 'n'.\n");
+                    continue;
+                }
+            }
         }
 
         static string CheckIfBlackjackOrBust(Player playerToCheck, Player opponent)
