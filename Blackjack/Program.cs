@@ -74,7 +74,15 @@ namespace Blackjack
 
             bool playerStand = false;
             bool quitGame = false;
-            string winner = "Draw";
+            string winner;
+
+            StartingHand(player, dealer, drawPile);
+            winner = CheckIfStartingHandsWin(player, dealer);
+
+            if (!winner.Equals("Draw"))
+            {
+                quitGame = true;
+            }
 
             while (!quitGame)
             {
@@ -123,23 +131,47 @@ namespace Blackjack
             ShowFinalHands(player, dealer, winner);
         }
 
-        static bool GetYesOrNoInput()
+        static void StartingHand(Player player, Player dealer, DrawPile drawPile)
         {
-            while (true)
-            {
-                string input = Console.ReadLine().Trim();
+            Console.WriteLine("***STARTING HANDS***");
 
-                if (input.Equals("y", StringComparison.OrdinalIgnoreCase) || input.Equals("yes", StringComparison.OrdinalIgnoreCase)) {
-                    return true;
-                }
-                else if (input.Equals("n", StringComparison.OrdinalIgnoreCase) || input.Equals("no", StringComparison.OrdinalIgnoreCase)) {
-                    return false;
-                }
-                else
-                {
-                    Console.WriteLine("\nPlease only answer 'yes', 'y', 'no', or 'n'.\n");
-                    continue;
-                }
+            AddCardToHand(player, drawPile);
+            AddCardToHand(dealer, drawPile);
+            AddCardToHand(player, drawPile);
+            AddCardToHand(dealer, drawPile);
+        }
+        static void AddCardToHand(Player player, DrawPile drawPile)
+        {
+            Card card = drawPile.DrawCard();
+            Console.WriteLine($"{player.GetName()} draws {card.GetName()}");
+            player.AddValueToHand(card.GetValue());
+            Console.WriteLine($"{player.GetName()}'s hand: {player.GetTotalHandValue()}\n");
+        }
+
+        static string CheckIfStartingHandsWin(Player player, Player dealer)
+        {
+            string naturalBlackjackWinnerPlayer = CheckIfBlackjackOrBust(player, dealer);
+            string naturalBlackjackWinnerDealer = CheckIfBlackjackOrBust(dealer, player);
+
+            if (naturalBlackjackWinnerPlayer == dealer.GetName() && naturalBlackjackWinnerDealer == player.GetName())
+            {
+                return "DoubleBust";
+            }
+            else if (naturalBlackjackWinnerPlayer == player.GetName() && naturalBlackjackWinnerDealer == dealer.GetName())
+            {
+                return "StandOff";
+            }
+            else if (naturalBlackjackWinnerPlayer == player.GetName())
+            {
+                return player.GetName();
+            }
+            else if (naturalBlackjackWinnerDealer == dealer.GetName())
+            {
+                return dealer.GetName();
+            }
+            else
+            {
+                return "Draw";
             }
         }
 
@@ -157,6 +189,28 @@ namespace Blackjack
             } else
             {
                 return "Draw";
+            }
+        }
+
+        static bool GetYesOrNoInput()
+        {
+            while (true)
+            {
+                string input = Console.ReadLine().Trim();
+
+                if (input.Equals("y", StringComparison.OrdinalIgnoreCase) || input.Equals("yes", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+                else if (input.Equals("n", StringComparison.OrdinalIgnoreCase) || input.Equals("no", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+                else
+                {
+                    Console.WriteLine("\nPlease only answer 'yes', 'y', 'no', or 'n'.\n");
+                    continue;
+                }
             }
         }
 
@@ -184,6 +238,14 @@ namespace Blackjack
             {
                 Console.WriteLine($"\nToo bad, {player.GetName()}! {dealer.GetName()} wins!");
                 dealer.AddWinToScore();
+            } else if (winner.Equals("StandOff")) 
+            {
+                Console.WriteLine("Stand Off! You both win!");
+                player.AddWinToScore();
+                dealer.AddWinToScore();
+            } else if (winner.Equals("DoubleBust"))
+            {
+                Console.WriteLine("Double Bust! You both lose!");
             }
             else
             {
@@ -198,14 +260,6 @@ namespace Blackjack
             Console.WriteLine("***FINAL SCORES***");
             Console.WriteLine($"\n{player.GetName()}: {player.GetScore()} win" + (player.GetScore() != 1 ? "s" : "") + ".");
             Console.WriteLine($"{dealer.GetName()}: {dealer.GetScore()} win" + (dealer.GetScore() != 1 ? "s" : "") + ".");
-        }
-
-        static void AddCardToHand(Player player, DrawPile drawPile)
-        {
-            Card card = drawPile.DrawCard();
-            Console.WriteLine($"{player.GetName()} draws {card.GetName()}");
-            player.AddValueToHand(card.GetValue());
-            Console.WriteLine($"{player.GetName()}'s hand: {player.GetTotalHandValue()}\n");
         }
     }
 }
