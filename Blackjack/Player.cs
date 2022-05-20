@@ -11,6 +11,7 @@ namespace Blackjack
         private string name;
         private int score = 0;
         private int totalHandValue = 0;
+        private double totalBalance = 100.00;
 
         public Player(string name)
         {
@@ -40,6 +41,21 @@ namespace Blackjack
         public void ResetTotalHandValue()
         {
             totalHandValue = 0;
+        }
+
+        public void AddToTotalBalance(double value)
+        {
+            totalBalance+= value;
+        }
+
+        public void SubtractFromTotalBalance(double value)
+        {
+            totalBalance-= value;
+        }
+
+        public double GetTotalBalance()
+        {
+            return totalBalance;
         }
 
         public string GetName()
