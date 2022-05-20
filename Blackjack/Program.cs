@@ -13,6 +13,8 @@ namespace Blackjack
             Player player = new Player(playerName);
             Player dealer = new Player("Dealer");
 
+            Console.WriteLine($"\nHello {player.GetName()}!\n");
+
             int amountOfDecks = GetAmountOfDecks(player);
             PlayGame(player, dealer, amountOfDecks);
             ShowFinalScores(player, dealer);
@@ -36,7 +38,7 @@ namespace Blackjack
             while (!isNumber || amountOfDecksNumber <= 0)
             {
                 Console.WriteLine($"\nHow many decks would you like to play with, {player.GetName()}?\n");
-                string amountOfDecksString = Console.ReadLine();
+                string amountOfDecksString = Console.ReadLine().Trim();
 
                 isNumber = int.TryParse(amountOfDecksString, out amountOfDecksNumber);
 
@@ -58,16 +60,24 @@ namespace Blackjack
 
             while (keepPlaying)
             {
-                PlayRound(drawPile, player, dealer);
+                double bet = GetBetAmount(player);
+                PlayRound(drawPile, player, dealer, bet);
 
-                Console.WriteLine("\nKeep playing? (y/n)\n");
-                keepPlaying = GetYesOrNoInput();
+                if (player.GetTotalBalance() <= 0)
+                {
+                    Console.WriteLine("Game over! You've lost all your money!");
+                    keepPlaying = false;
+                } else
+                {
+                    Console.WriteLine("\nKeep playing? (y/n)\n");
+                    keepPlaying = GetYesOrNoInput();
+                }
 
                 Console.WriteLine("");
             }
         }
 
-        static void PlayRound(DrawPile drawPile, Player player, Player dealer)
+        static void PlayRound(DrawPile drawPile, Player player, Player dealer, double bet)
         {
             player.ResetTotalHandValue();
             dealer.ResetTotalHandValue();
@@ -128,7 +138,36 @@ namespace Blackjack
                 }
             }
 
-            ShowFinalHands(player, dealer, winner);
+            ShowFinalHands(player, dealer, winner, bet);
+        }
+
+        static double GetBetAmount(Player player)
+        {   
+            double bet = 0;
+            bool isNumber = false;
+
+            while (!isNumber || bet <= 0 || bet > player.GetTotalBalance())
+            {
+                Console.WriteLine($"You have {player.GetTotalBalance():C2} to bet.");
+                Console.WriteLine("How much would you like to bet?\n");
+                string betString = Console.ReadLine().Trim();
+                Console.WriteLine("");
+
+                isNumber = double.TryParse(betString, out bet);
+
+                if (!isNumber)
+                {
+                    Console.WriteLine($"{betString} is not a valid number! Please type in a number and try again.\n");
+                } else if (bet <= 0)
+                {
+                    Console.WriteLine("You can't bet 0 or less! Where's the fun in that?\n");
+                } else if (bet > player.GetTotalBalance())
+                {
+                    Console.WriteLine("You don't have that much money!\n");
+                }
+            }
+
+            return bet;
         }
 
         static void StartingHand(Player player, Player dealer, DrawPile drawPile)
@@ -163,7 +202,7 @@ namespace Blackjack
             }
             else if (naturalBlackjackWinnerPlayer == player.GetName())
             {
-                return player.GetName();
+                return "Natural";
             }
             else if (naturalBlackjackWinnerDealer == dealer.GetName())
             {
@@ -214,7 +253,7 @@ namespace Blackjack
             }
         }
 
-        static void ShowFinalHands(Player player, Player dealer, string winner)
+        static void ShowFinalHands(Player player, Player dealer, string winner, double bet)
         {
             Console.WriteLine("\n***FINAL HANDS***");
             Console.WriteLine($"\n{player.GetName()}: {player.GetTotalHandValue()}");
@@ -231,25 +270,34 @@ namespace Blackjack
 
             if (winner.Equals(player.GetName()))
             {
-                Console.WriteLine($"\nCongratulations, {player.GetName()}! You win!");
+                Console.WriteLine($"\nCongratulations, {player.GetName()}! You win! {bet:C2} added to your balance.");
+                player.AddToTotalBalance(bet);
                 player.AddWinToScore();
             }
             else if (winner.Equals(dealer.GetName()))
             {
-                Console.WriteLine($"\nToo bad, {player.GetName()}! {dealer.GetName()} wins!");
+                Console.WriteLine($"\nToo bad, {player.GetName()}! {dealer.GetName()} wins! You lost {bet:C2}.");
                 dealer.AddWinToScore();
-            } else if (winner.Equals("StandOff")) 
+                player.SubtractFromTotalBalance(bet);
+            } else if (winner.Equals("Natural"))
             {
-                Console.WriteLine("Stand Off! You both win!");
+                Console.WriteLine($"Natural Blackjack! You win {bet * 1.5:C2}!");
+                player.AddToTotalBalance(bet * 1.5);
+                player.AddWinToScore();
+            }
+            else if (winner.Equals("StandOff"))
+            {
+                Console.WriteLine("Stand Off! You both win! Your bet is refunded.");
                 player.AddWinToScore();
                 dealer.AddWinToScore();
             } else if (winner.Equals("DoubleBust"))
             {
-                Console.WriteLine("Double Bust! You both lose!");
+                Console.WriteLine($"Double Bust! You both lose! You lost {bet:C2}.");
+                player.SubtractFromTotalBalance(bet);
             }
             else
             {
-                Console.WriteLine("\nWell how about that? It's a draw!");
+                Console.WriteLine("\nWell how about that? It's a draw! Your bet is refunded.");
             }
 
             Console.WriteLine("");
@@ -260,6 +308,7 @@ namespace Blackjack
             Console.WriteLine("***FINAL SCORES***");
             Console.WriteLine($"\n{player.GetName()}: {player.GetScore()} win" + (player.GetScore() != 1 ? "s" : "") + ".");
             Console.WriteLine($"{dealer.GetName()}: {dealer.GetScore()} win" + (dealer.GetScore() != 1 ? "s" : "") + ".");
+            Console.WriteLine($"\n{player.GetName()}'s Final Balance: {player.GetTotalBalance():C2}");
         }
     }
 }
