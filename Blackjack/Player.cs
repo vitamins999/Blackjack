@@ -1,66 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Blackjack
+﻿namespace Blackjack
 {
-    internal class Player
+    internal class Player : Person
     {
-        private string name;
-        private int score = 0;
-        private int totalHandValue = 0;
-        private double totalBalance = 100.00;
+        private double TotalBalance { get; set; } = 100.00;
 
-        public Player(string name)
+        public Player(string name) : base(name)
         {
-            this.name = name;
-        }
-
-        public void AddWinToScore()
-        {
-            score++;
-        }
-
-        public int GetScore()
-        {
-            return score;
-        }
-
-        public void AddValueToHand(int value)
-        {
-            totalHandValue+= value;
-        }
-
-        public int GetTotalHandValue()
-        {
-            return totalHandValue;
-        }
-
-        public void ResetTotalHandValue()
-        {
-            totalHandValue = 0;
+            Name = name;
         }
 
         public void AddToTotalBalance(double value)
         {
-            totalBalance+= value;
+            TotalBalance+= value;
         }
 
         public void SubtractFromTotalBalance(double value)
         {
-            totalBalance-= value;
+            TotalBalance-= value;
         }
 
         public double GetTotalBalance()
         {
-            return totalBalance;
-        }
-
-        public string GetName()
-        {
-            return name;
+            return TotalBalance;
         }
     }
 }
